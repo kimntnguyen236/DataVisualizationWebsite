@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Client</title>
+</head>
+<body>
+<h1>Message for Server</h1>
+<form>
+    <input type="text" name="inputString" />
+    <button type="button" onclick="sendMessage()">Submit</button>
+</form>
+
+<h1>Messages from Server</h1>
+<p style="border-style: solid; width: 500px; border-width: 1px;" id="messages"></p>
+
+<script>
+    //Open connection
+    let connection = new WebSocket("wss://0jd4dlkrmk.execute-api.us-east-1.amazonaws.com/prod");
+    //Log connected response
+    connection.onopen = function(event){
+        console.log("Connected: " + JSON.stringify(event));
+    };
+
+    //Output messages from the server
+    connection.onmessage = function(msg){
+        document.getElementById("messages").innerHTML += ("Server message: " + msg.data + "<br />");
+        console.log("Message received.");
+    }
+
+    //Log errors
+    connection.onerror = function (error) {
+        console.log("WebSocket Error: " + JSON.stringify(error));
+    }
+
+    //Send message to server
+    function sendMessage(){
+        //Get text from form
+        let msgText = document.forms[0].inputString.value;
+
+        //Create message to be sent to server
+        let msgObject = {
+          action: "sendMessage",//Used for routing in API Gateway
+          data: msgText
+        };
+
+        //Send message
+        connection.send(JSON.stringify(msgObject));
+
+        //Log result
+        console.log("Message sent: " + JSON.stringify(msgObject));
+    }
+    
+</script>
+</body>
+</html>
